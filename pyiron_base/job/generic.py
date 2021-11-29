@@ -977,60 +977,19 @@ class GenericJob(JobCore):
         """
         pass
 
-    def create_job(self, job_type, job_name, delete_existing_job=False):
+    def create_job(self, *args, **kwargs):
         """
-        Create one of the following jobs:
-        - 'StructureContainer’:
-        - ‘StructurePipeline’:
-        - ‘AtomisticExampleJob’: example job just generating random number
-        - ‘ExampleJob’: example job just generating random number
-        - ‘Lammps’:
-        - ‘KMC’:
-        - ‘Sphinx’:
-        - ‘Vasp’:
-        - ‘GenericMaster’:
-        - ‘SerialMaster’: series of jobs run in serial
-        - ‘AtomisticSerialMaster’:
-        - ‘ParallelMaster’: series of jobs run in parallel
-        - ‘KmcMaster’:
-        - ‘ThermoLambdaMaster’:
-        - ‘RandomSeedMaster’:
-        - ‘MeamFit’:
-        - ‘Murnaghan’:
-        - ‘MinimizeMurnaghan’:
-        - ‘ElasticMatrix’:
-        - ‘ConvergenceVolume’:
-        - ‘ConvergenceEncutParallel’:
-        - ‘ConvergenceKpointParallel’:
-        - ’PhonopyMaster’:
-        - ‘DefectFormationEnergy’:
-        - ‘LammpsASE’:
-        - ‘PipelineMaster’:
-        - ’TransformationPath’:
-        - ‘ThermoIntEamQh’:
-        - ‘ThermoIntDftEam’:
-        - ‘ScriptJob’: Python script or jupyter notebook job container
-        - ‘ListMaster': list of jobs
+        Creates a new job and set itself as a reference job of that new job.
+
+        Commonly used to create Master jobs from reference jobs.
 
         Args:
-            job_type (str): job type can be ['StructureContainer’, ‘StructurePipeline’, ‘AtomisticExampleJob’,
-                                             ‘ExampleJob’, ‘Lammps’, ‘KMC’, ‘Sphinx’, ‘Vasp’, ‘GenericMaster’,
-                                             ‘SerialMaster’, ‘AtomisticSerialMaster’, ‘ParallelMaster’, ‘KmcMaster’,
-                                             ‘ThermoLambdaMaster’, ‘RandomSeedMaster’, ‘MeamFit’, ‘Murnaghan’,
-                                             ‘MinimizeMurnaghan’, ‘ElasticMatrix’, ‘ConvergenceVolume’,
-                                             ‘ConvergenceEncutParallel’, ‘ConvergenceKpointParallel’, ’PhonopyMaster’,
-                                             ‘DefectFormationEnergy’, ‘LammpsASE’, ‘PipelineMaster’,
-                                             ’TransformationPath’, ‘ThermoIntEamQh’, ‘ThermoIntDftEam’, ‘ScriptJob’,
-                                             ‘ListMaster']
-            job_name (str): name of the job
-            delete_existing_job (bool): delete an existing job - default false
+            *args, **kwargs: Pass through to :meth:`.Project.create_job`.
 
         Returns:
             GenericJob: job object depending on the job_type selected
         """
-        job = self.project.create_job(
-            job_type=job_type, job_name=job_name, delete_existing_job=delete_existing_job
-        )
+        job = self.project.create_job(*args, **kwargs)
         job._init_child_job(self)
         return job
 
