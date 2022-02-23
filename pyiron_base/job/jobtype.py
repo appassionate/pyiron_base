@@ -36,6 +36,39 @@ JOB_CLASS_DICT = {
 }
 
 
+def get_wrapper(class_name, project, job_class_dict):
+    def wrapper(job_name, delete_existing_job=False, delete_aborted_job=False):
+        """
+        Create one of the following jobs:
+        - 'ExampleJob': example job just generating random number
+        - 'SerialMaster': series of jobs run in serial
+        - 'ParallelMaster': series of jobs run in parallel
+        - 'ScriptJob': Python script or jupyter notebook job container
+        - 'ListMaster': list of jobs
+
+        Args:
+            job_name (str): name of the job
+            delete_existing_job (bool): delete an existing job - default false
+            delete_aborted_job (bool): delete an existing and aborted job - default false
+
+        Returns:
+            GenericJob: job object depending on the job_type selected
+        """
+        job_name = _get_safe_job_name(job_name)
+        return JobType(
+            class_name=class_name,
+            project=ProjectHDFio(
+                project=project, file_name=job_name
+            ),
+            job_name=job_name,
+            job_class_dict=job_class_dict,
+            delete_existing_job=delete_existing_job,
+            delete_aborted_job=delete_aborted_job,
+        )
+
+    return wrapper
+
+
 class JobType(object):
     """
     The JobTypeBase class creates a new object of a given class type.
@@ -145,74 +178,20 @@ class JobFactory(PyironFactory):
 
     def __getattr__(self, name):
         if name in self._job_class_dict.keys():
+            return get_wrapper(
+                class_name=name,
+                project=self._project.copy(),
+                job_class_dict=self._job_class_dict
+            )
 
-            def wrapper(job_name, delete_existing_job=False, delete_aborted_job=False):
-                """
-                Create one of the following jobs:
-                - 'ExampleJob': example job just generating random number
-                - 'SerialMaster': series of jobs run in serial
-                - 'ParallelMaster': series of jobs run in parallel
-                - 'ScriptJob': Python script or jupyter notebook job container
-                - 'ListMaster': list of jobs
-
-                Args:
-                    job_name (str): name of the job
-                    delete_existing_job (bool): delete an existing job - default false
-                    delete_aborted_job (bool): delete an existing and aborted job - default false
-
-                Returns:
-                    GenericJob: job object depending on the job_type selected
-                """
-                job_name = _get_safe_job_name(job_name)
-                return JobType(
-                    class_name=name,
-                    project=ProjectHDFio(
-                        project=self._project.copy(), file_name=job_name
-                    ),
-                    job_name=job_name,
-                    job_class_dict=self._job_class_dict,
-                    delete_existing_job=delete_existing_job,
-                    delete_aborted_job=delete_aborted_job,
-                )
-
-            return wrapper
         else:
             job_dyn_dict = get_template_classes()
             if name in job_dyn_dict.keys():
-
-                def wrapper(
-                    job_name, delete_existing_job=False, delete_aborted_job=False
-                ):
-                    """
-                    Create one of the following jobs:
-                    - 'ExampleJob': example job just generating random number
-                    - 'SerialMaster': series of jobs run in serial
-                    - 'ParallelMaster': series of jobs run in parallel
-                    - 'ScriptJob': Python script or jupyter notebook job container
-                    - 'ListMaster': list of jobs
-
-                    Args:
-                        job_name (str): name of the job
-                        delete_existing_job (bool): delete an existing job - default false
-                        delete_aborted_job (bool): delete an existing and aborted job - default false
-
-                    Returns:
-                        GenericJob: job object depending on the job_type selected
-                    """
-                    job_name = _get_safe_job_name(job_name)
-                    return JobType(
-                        class_name=name,
-                        project=ProjectHDFio(
-                            project=self._project.copy(), file_name=job_name
-                        ),
-                        job_name=job_name,
-                        job_class_dict=job_dyn_dict,
-                        delete_existing_job=delete_existing_job,
-                        delete_aborted_job=delete_aborted_job,
-                    )
-
-                return wrapper
-
+                return get_wrapper(
+                    class_name=name,
+                    project=self._project.copy(),
+                    job_class_dict=job_dyn_dict
+                )
             raise AttributeError("no job class named '{}' defined".format(name))
 
 
