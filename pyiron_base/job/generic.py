@@ -1070,7 +1070,7 @@ class GenericJob(JobCore):
         """
         pass
 
-    def create_job(self, job_type, job_name, delete_existing_job=False):
+    def create_job(self, job_type, job_name, delete_existing_job=False, delete_aborted_job=False):
         """
         Create one of the following jobs:
         - 'StructureContainer’:
@@ -1117,6 +1117,7 @@ class GenericJob(JobCore):
                                              ‘ListMaster']
             job_name (str): name of the job
             delete_existing_job (bool): delete an existing job - default false
+            delete_aborted_job (bool): delete an existing aborted job - default false
 
         Returns:
             GenericJob: job object depending on the job_type selected
@@ -1125,6 +1126,7 @@ class GenericJob(JobCore):
             job_type=job_type,
             job_name=job_name,
             delete_existing_job=delete_existing_job,
+            delete_aborted_job=delete_aborted_job
         )
         job._init_child_job(self)
         return job

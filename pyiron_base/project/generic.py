@@ -316,7 +316,7 @@ class Project(ProjectPath, HasGroups):
         new = self.copy()
         return new.open(group, history=False)
 
-    def create_job(self, job_type, job_name, delete_existing_job=False):
+    def create_job(self, job_type, job_name, delete_existing_job=False, delete_aborted_job=False):
         """
         Create one of the following jobs:
         - 'ExampleJob': example job just generating random number
@@ -329,6 +329,7 @@ class Project(ProjectPath, HasGroups):
             job_type (str): job type can be ['ExampleJob', 'SerialMaster', 'ParallelMaster', 'ScriptJob', 'ListMaster']
             job_name (str): name of the job
             delete_existing_job (bool): delete an existing job - default false
+            delete_aborted_job (bool): delete an existing aborted job - default false
 
         Returns:
             GenericJob: job object depending on the job_type selected
@@ -340,18 +341,20 @@ class Project(ProjectPath, HasGroups):
             job_name=job_name,
             job_class_dict=self.job_type.job_class_dict,
             delete_existing_job=delete_existing_job,
+            delete_aborted_job=delete_aborted_job,
         )
         if self.user is not None:
             job.user = self.user
         return job
 
-    def create_table(self, job_name="table", delete_existing_job=False):
+    def create_table(self, job_name="table", delete_existing_job=False, delete_aborted_job=False):
         """
         Create pyiron table
 
         Args:
             job_name (str): job name of the pyiron table job
             delete_existing_job (bool): Delete the existing table and run the analysis again.
+            delete_aborted_job (bool): Delete an existing aborted table
 
         Returns:
             pyiron.table.datamining.TableJob
@@ -360,6 +363,7 @@ class Project(ProjectPath, HasGroups):
             job_type=self.job_type.TableJob,
             job_name=job_name,
             delete_existing_job=delete_existing_job,
+            delete_aborted_job=delete_aborted_job,
         )
         table.analysis_project = self
         return table
