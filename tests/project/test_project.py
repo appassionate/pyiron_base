@@ -113,6 +113,10 @@ class TestProjectOperations(TestWithFilledProject):
         self.assertEqual(len(self.project.job_table(recursive=True, status="!aborted")), 3)
         self.assertEqual(len(self.project.job_table(recursive=True, job="!toy_1")), 2)
         self.assertEqual(len(self.project.job_table(recursive=True, job="!toy_*")), 0)
+        try:
+            self.assertEqual(len(self.project.job_table(recursive=True, id=-1)), 0)
+        except TypeError:
+            self.fail("Filtering for a numeric value raised an error!")
         self.assertRaises(ValueError, self.project.job_table, gibberish=True)
 
     def test_get_iter_jobs(self):
