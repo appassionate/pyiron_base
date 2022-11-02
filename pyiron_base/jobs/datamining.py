@@ -13,6 +13,7 @@ import pandas
 from pandas.errors import EmptyDataError
 from tqdm.auto import tqdm
 import types
+import warnings
 
 from pyiron_base.jobs.job.generic import GenericJob
 from pyiron_base.storage.hdfio import FileHDFio
@@ -376,7 +377,10 @@ class PyironTable(HasGroups):
     def _apply_function_on_job(funct, job):
         try:
             return funct(job)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as e:
+            warnings.warn(
+                f'{funct.__name__} failed on {job.job_name} with message {e}'
+            )
             return {}
 
     @staticmethod
