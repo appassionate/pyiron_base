@@ -70,7 +70,7 @@ def run_job_with_status_initialized(job, debug=False):
     if job.server.run_mode.queue:
         job.check_setup()
     if job.check_if_job_exists():
-        print("job exists already and therefore was not created!")
+        job.logger.warn(f"job \"{job.name}\" exists already and therefore was not created!")
     else:
         job.save()
         job.run()
@@ -132,7 +132,7 @@ def run_job_with_status_submitted(
         else:
             job.transfer_from_remote()
     else:
-        print("Job " + str(job.job_id) + " is waiting in the que!")
+        job.logger.info(f"job \"{job.job_id}\" is waiting in the queue!")
 
 
 def run_job_with_status_running(job):
