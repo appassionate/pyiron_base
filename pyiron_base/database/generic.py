@@ -25,7 +25,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import select
-from sqlalchemy.exc import OperationalError, DatabaseError
+from sqlalchemy.exc import OperationalError, DatabaseError, PendingRollbackError
 from threading import Thread, Lock
 from queue import SimpleQueue, Empty as QueueEmpty
 from pyiron_base.database.tables import get_historical_table
@@ -421,7 +421,11 @@ class AutorestoredConnection:
                     self._watchdog.start()
             if self._timeout > 0:
                 self._watchdog.kick()
-            return self._conn.execute(*args, **kwargs)
+            try:
+                return self._conn.execute(*args, **kwargs)
+            except PendingRollbackError:
+                self._conn.rollback()
+                return self._conn.execute(*args, **kwargs)
 
     def execute(self, *args, **kwargs):
         return retry(
