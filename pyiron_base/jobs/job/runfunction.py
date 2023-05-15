@@ -466,8 +466,11 @@ def execute_job_with_external_executable(job):
         "{}, status: {}, run job (modal)".format(job.job_info_str, job.status)
     )
     if job.executable.executable_path == "":
-        job.status.aborted = True
-        raise ValueError("No executable set!")
+        try:
+            job.executable.executable_path = job.executable.storage["local"]
+            print("using local exec in job working directory...")
+        except:
+            raise ValueError("No executable set!")
     job.status.running = True
     executable, shell = job.executable.get_input_for_subprocess_call(
         cores=job.server.cores, threads=job.server.threads
